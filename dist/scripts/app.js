@@ -30,7 +30,10 @@ var render = function() {
     ball.render();
   };
 
+// update the ball and player's position
+
 var update = function() {
+  ball.update(player.paddle, computer.paddle);
   player.update();
   };
 
@@ -127,6 +130,50 @@ Ball.prototype.render = function() {
   context.arc(this.x, this.y, this.radius, 2 * Math.PI, false);
   context.fillStyle = "#FFFFFF";
   context.fill();
+};
+
+// As a player, I want the ball to bounce off the paddles and two sides of the table
+
+Ball.prototype.update = function(paddle1, paddle2) {
+  this.x += this.x_speed;
+  this.y += this.y_speed;
+  var top_x = this.x - 5;
+  var top_y = this.y - 5;
+  var bottom_x = this.x + 5;
+  var bottom_y = this.y + 5;
+
+  if(this.x - 5 < 0) { // hitting the left wall, turn the ball around
+    this.x = 5;
+    this.x_speed = -this.x_speed;
+  } else if(this.x + 5 > 400) { // hitting the right wall, turn the ball around
+    this.x = 395;
+    this.x_speed = -this.x_speed;
+  }
+
+  if(this.y < 0 || this.y > 600) { // a point was scored so put a new ball on the board
+    this.x_speed = 0;
+    this.y_speed = 3;
+    this.x = 200; // new ball on the middle board
+    this.y = 300;
+  }
+
+  // calculate what happens when the ball hits a paddle
+
+  if(top_y > 300) {
+    if(top_y < (paddle1.y + paddle1.height) && bottom_y > paddle1.y && top_x < (paddle1.x + paddle1.width) && bottom_x > paddle1.x) {
+      // hit the player's paddle, hit the ball in the opposite direction
+      this.y_speed = -3;
+      this.x_speed += (paddle1.x_speed / 2);
+      this.y += this.y_speed;
+    }
+  } else {
+    if(top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y && top_x < (paddle2.x + paddle2.width) && bottom_x > paddle2.x) {
+      // hit the computer's paddle, hit the ball in the opposite direction
+      this.y_speed = 3;
+      this.x_speed += (paddle2.x_speed / 2);
+      this.y += this.y_speed;
+    }
+  }
 };
 
 // The animation needs an initial trigger, such as when the window first loads.
