@@ -33,9 +33,10 @@ var render = function() {
 // update the ball and player's position
 
 var update = function() {
-  ball.update(player.paddle, computer.paddle);
   player.update();
-  };
+  computer.update(ball);
+  ball.update(player.paddle, computer.paddle);
+};
 
 // action that will act as animate's callback
 
@@ -90,6 +91,24 @@ function Computer() {
 
 Computer.prototype.render = function() {
   this.paddle.render();
+};
+
+// Takes the ball object into account to move the computer's paddle
+
+Computer.prototype.update = function(ball) {
+  var x_pos = ball.x; // current x-coordinate of the ball
+  var diff = -((this.paddle.x + (this.paddle.width / 2)) - x_pos); // how far the paddle is from the ball, horizontally
+  if(diff < 0 && diff < -4) { // max speed left
+    diff = -5;
+  } else if(diff > 0 && diff > 4) { // max speed right
+    diff = 5;
+  }
+  this.paddle.move(diff, 0); //move the paddle horizontally to match the ball
+  if(this.paddle.x < 0) {
+    this.paddle.x = 0;
+  } else if (this.paddle.x + this.paddle.width > 400) {
+    this.paddle.x = 400 - this.paddle.width;
+  }
 };
 
 // Use an object constructor to create, then render the player's paddle.
